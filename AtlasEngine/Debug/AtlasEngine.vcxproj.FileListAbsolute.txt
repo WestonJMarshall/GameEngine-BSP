@@ -1,0 +1,2 @@
+C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\Debug\AtlasEngine.exe
+C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\Debug\AtlasEngine.pdb

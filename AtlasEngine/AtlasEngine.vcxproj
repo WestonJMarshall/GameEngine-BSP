@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BSP.cpp" />
     <ClCompile Include="coin.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="engine.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="thread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BSP.h" />
     <ClInclude Include="coin.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="engine.h" />
