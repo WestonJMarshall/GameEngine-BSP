@@ -1,5 +1,27 @@
 #include "pch.h"
 #include "BSP.h"
+#include <iostream>
+
+BSP* Create_Root_BSP() {
+	//get bounds of the window, in this case its 800 x 800
+	int width = 800;
+	int height = 800;
+
+	BSP* rootBSP{};
+
+	//set topleft and bottom right of the root box
+	rootBSP->topLeft = glm::vec2(-1.0f, 1.0f);
+	rootBSP->bottomRight = glm::vec2(1.0f, -1.0f);
+
+	//set the floats to be the edges of the window, However these will need to be discerned between x and y values, as they are just floats
+	rootBSP->boundingBox.left = -1.0f;
+	rootBSP->boundingBox.right = 1.0f;
+	rootBSP->boundingBox.top = 1.0f;
+	rootBSP->boundingBox.bottom = -1.0f;
+
+	//returns root node
+	return rootBSP;
+}
 
 void Fill_BSP(BSP* bsp, Instance* inst, int instanceCount)
 {
@@ -200,6 +222,125 @@ void Place_Into_BSP(BSP* bsp, Instance* inst)
 				child2.boundingBox.right = bsp->boundingBox.right;
 				child2.boundingBox.front = bsp->boundingBox.front;
 				child2.boundingBox.back = bsp->boundingBox.back;
+				child2.boundingBox.top = bsp->boundingBox.top;
+				child2.boundingBox.bottom = splitLoc;
+
+				bsp->children.child2 = &child2;
+
+				//Place instances into newly created child nodes
+				for (auto& i : bsp->instances)
+				{
+					Place_Into_BSP(bsp, i);
+				}
+			}
+		}
+	}
+}
+
+void Place_Into_BSP2D(BSP* bsp, Instance* instance) {
+	if (!bsp->initialized) return;
+
+	if (bsp->children.child1 != nullptr)
+	{
+		//call Bounding_Box_Collison_2D, which does not account for front/back
+		if (Bounding_Box_Collision2D(bsp->boundingBox, bsp->children.child1->boundingBox))
+		{
+			Place_Into_BSP(bsp->children.child1, instance);
+		}
+		else
+		{
+			Place_Into_BSP(bsp->children.child2, instance);
+		}
+		return;
+	}
+	else {
+		bsp->instances.push_back(instance);
+
+		//The type of BSP determines the next action
+		if (bsp->type == leftRight)
+		{
+			bsp->meanContentsValue += ((instance->boundingBox.right + instance->boundingBox.left) / 2.0f);
+
+			//Split BSP if neccessary
+			if (bsp->instances.size() > bsp->minToSubdivide)
+			{
+				float splitLoc = bsp->meanContentsValue / bsp->instances.size();
+
+				BSP child1{};
+				Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
+
+				//if type is leftright, change type to topbottom and make bounding box, and do not check for front and back
+				child1.type = topBottom;
+				child1.parent = bsp;
+
+				child1.boundingBox.left = bsp->boundingBox.left;
+				child1.boundingBox.right = splitLoc;
+				//child1.boundingBox.front = bsp->boundingBox.front;
+				//child1.boundingBox.back = bsp->boundingBox.back;
+				child1.boundingBox.top = bsp->boundingBox.top;
+				child1.boundingBox.bottom = bsp->boundingBox.bottom;
+
+				bsp->children.child1 = &child1;
+
+				//2
+				BSP child2{};
+				Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
+
+				child2.type = topBottom;
+				child2.parent = bsp;
+
+				child2.boundingBox.left = splitLoc;
+				child2.boundingBox.right = bsp->boundingBox.right;
+				//child2.boundingBox.front = bsp->boundingBox.front;
+				//child2.boundingBox.back = bsp->boundingBox.back;
+				child2.boundingBox.top = bsp->boundingBox.top;
+				child2.boundingBox.bottom = bsp->boundingBox.bottom;
+
+				bsp->children.child2 = &child2;
+
+				//Place instances into newly created child nodes
+				for (auto& i : bsp->instances)
+				{
+					Place_Into_BSP(bsp, i);
+				}
+			}
+		}
+		//Does not check for frontBack because the program functions as a 2d program
+		else //topBottom
+		{
+			bsp->meanContentsValue += ((instance->boundingBox.top + instance->boundingBox.bottom) / 2.0f);
+
+			//Split BSP if neccessary
+			if (bsp->instances.size() > bsp->minToSubdivide)
+			{
+				float splitLoc = bsp->meanContentsValue / bsp->instances.size();
+
+				BSP child1{};
+				Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
+
+				child1.type = leftRight;
+				child1.parent = bsp;
+
+				child1.boundingBox.left = bsp->boundingBox.left;
+				child1.boundingBox.right = bsp->boundingBox.right;
+				//child1.boundingBox.front = bsp->boundingBox.front;
+				//child1.boundingBox.back = bsp->boundingBox.back;
+				child1.boundingBox.top = splitLoc;
+				child1.boundingBox.bottom = bsp->boundingBox.bottom;
+
+				bsp->children.child1 = &child1;
+
+				//2
+				BSP child2{};
+				Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
+
+				child2.type = leftRight;
+				child2.parent = bsp;
+
+				child2.boundingBox.left = bsp->boundingBox.left;
+				child2.boundingBox.right = bsp->boundingBox.right;
+				//child2.boundingBox.front = bsp->boundingBox.front;
+				//child2.boundingBox.back = bsp->boundingBox.back;
 				child2.boundingBox.top = bsp->boundingBox.top;
 				child2.boundingBox.bottom = splitLoc;
 

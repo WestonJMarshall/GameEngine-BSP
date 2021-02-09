@@ -15,12 +15,31 @@ bool Bounding_Box_Collision(BoundingBox& b1, BoundingBox& b2)
 	return true;
 }
 
+bool Bounding_Box_Collision2D(BoundingBox& b1, BoundingBox& b2)
+{
+	if (b1.left > b2.right
+		|| b1.right < b2.left
+		|| b1.top < b2.bottom
+		|| b1.bottom > b2.top)
+	{
+		return false;
+	}
+	return true;
+}
+
 enum BSPSplitDirection
 {
 	leftRight,
 	frontBack,
 	topBottom
 };
+
+//for 2d bsp checking
+//enum BSPSplitDirection2D
+//{
+	//leftRight,
+	//topBottom
+//};
 
 struct BSP
 {
@@ -49,7 +68,11 @@ struct BSP
 
 	BoundingBox boundingBox;
 	float meanContentsValue; //determines where the BSP should split
+	glm::vec2 topLeft;
+	glm::vec2 bottomRight;
 };
+
+
 
 //Add instances that will be split into
 //BSP nodes when 'Generate_BSP' is called
@@ -67,4 +90,9 @@ void Init_BSP(BSP* bsp, int maxSubdivisions, int minToSubdivide);
 //Call this to put an instance in an
 //already created BSP tree
 void Place_Into_BSP(BSP* bsp, Instance* inst);
+
+//Places into a 2d bsp only
+void Place_Into_BSP2D(BSP* bsp, Instance* instance);
+
+BSP* Create_Root_BSP();
 

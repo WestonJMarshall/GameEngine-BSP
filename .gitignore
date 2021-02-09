@@ -1,3 +1,7 @@
+#specific files
+AtlasEngine/.vs/AtlasEngine/v16/Browse.VC.opendb
+AtlasEngine/.vs/AtlasEngine/v16/ipch/1edf422b9f48e427.ipch
+
 # Prerequisites
 *.d
 

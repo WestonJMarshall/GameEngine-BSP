@@ -4,6 +4,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <stdio.h>
 #include <cstdlib>
 #include <cstring>
@@ -30,7 +31,6 @@ struct BoundingBox
 	float front;
 	float back;
 };
-
 #include "mempack.h"
 #include "graphics.h"
 #include "sprite.h"

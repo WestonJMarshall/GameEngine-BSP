@@ -24,8 +24,8 @@ void Level_Init()
 
     // draw person on top (small depth)
     in->depth = 0.1f;
-    in->posX = -0.5f;
-    in->posY = -0.5f;
+    in->posX = -1.0f;
+    in->posY = -1.0f;
     in->scaleX = 0.00075f;
     in->scaleY = 0.00075f;
     in->sprite = global.sprite[SP_PLAYER];
