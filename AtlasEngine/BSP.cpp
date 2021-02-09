@@ -2,7 +2,7 @@
 #include "BSP.h"
 #include <iostream>
 
-BSP* Create_Root_BSP() {
+BSP* Create_Root_BSP(int maxSubdivisions, int minToSubdivide) {
 	//get bounds of the window, in this case its 800 x 800
 	int width = 800;
 	int height = 800;
@@ -18,6 +18,16 @@ BSP* Create_Root_BSP() {
 	rootBSP->boundingBox.right = 1.0f;
 	rootBSP->boundingBox.top = 1.0f;
 	rootBSP->boundingBox.bottom = -1.0f;
+	//fill in struct data
+	rootBSP->subdivisionLevel = 0;
+	rootBSP->split = false;
+	rootBSP->meanContentsValue = 0.0f;
+	rootBSP->initialized = true;
+	rootBSP->maxSubdivisions = maxSubdivisions;
+	rootBSP->minToSubdivide = minToSubdivide;
+
+	//TEMP
+	rootBSP->instances.clear();
 
 	//returns root node
 	return rootBSP;

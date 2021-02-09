@@ -70,6 +70,8 @@ struct BSP
 	float meanContentsValue; //determines where the BSP should split
 	glm::vec2 topLeft;
 	glm::vec2 bottomRight;
+
+
 };
 
 
@@ -94,5 +96,5 @@ void Place_Into_BSP(BSP* bsp, Instance* inst);
 //Places into a 2d bsp only
 void Place_Into_BSP2D(BSP* bsp, Instance* instance);
 
-BSP* Create_Root_BSP();
+BSP* Create_Root_BSP(int maxSubdivisions, int minToSubdivide);
 
