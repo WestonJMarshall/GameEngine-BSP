@@ -16,6 +16,8 @@ struct Instance
 	// instance and thread are linked
 	Thread* thread;
 
+	BoundingBox boundingBox;
+
 	float depth;
 	float posX;
 	float posY;

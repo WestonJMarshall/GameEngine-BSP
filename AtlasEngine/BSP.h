@@ -1,14 +1,19 @@
 #pragma once
+#include "pch.h"
 
-struct BoundingBox
+bool Bounding_Box_Collision(BoundingBox& b1, BoundingBox& b2)
 {
-	float left;
-	float right;
-	float top;
-	float bottom;
-	float front;
-	float back;
-};
+	if (b1.left > b2.right
+		|| b1.right < b2.left
+		|| b1.front < b2.back
+		|| b1.back > b2.front
+		|| b1.top < b2.bottom
+		|| b1.bottom > b2.top)
+	{
+		return false;
+	}
+	return true;
+}
 
 enum BSPSplitDirection
 {
@@ -19,7 +24,15 @@ enum BSPSplitDirection
 
 struct BSP
 {
+	struct BSPChildren
+	{
+		BSP* child1;
+		BSP* child2;
+	};
+
 	bool initialized = false;
+
+	BSPSplitDirection type;
 
 	int subdivisionLevel;
 
@@ -28,15 +41,14 @@ struct BSP
 
 	bool split;
 
-	int numInstances;
-	Instance* instances;
+	std::vector<Instance*> instances;
 
 	BSP* root;
 	BSP* parent;
-	BSP* children;
+	BSPChildren children;
 
 	BoundingBox boundingBox;
-	float meanContentsValue; //determines where the BSP should split (-1 to 1)
+	float meanContentsValue; //determines where the BSP should split
 };
 
 //Add instances that will be split into

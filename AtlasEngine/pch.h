@@ -9,6 +9,10 @@
 #include <cstring>
 #include <time.h>
 
+//Temp?
+#include <vector>
+
+
 // fowrad declaration
 struct Mempack;
 struct Sprite;
@@ -17,6 +21,15 @@ struct Thread;
 struct Player;
 struct Item;
 struct Pool;
+struct BoundingBox
+{
+	float left;
+	float right;
+	float top;
+	float bottom;
+	float front;
+	float back;
+};
 
 #include "mempack.h"
 #include "graphics.h"

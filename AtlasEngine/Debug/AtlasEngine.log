@@ -1,19 +1,6 @@
-﻿  pch.cpp
-  coin.cpp
-  collision.cpp
-C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\collision.cpp(6,7): warning C4102: 'https': unreferenced label
-  engine.cpp
-  graphics.cpp
-  input.cpp
-  instance.cpp
-  level.cpp
-  main.cpp
-C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\main.cpp(20,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  mempack.cpp
-  player.cpp
-  pool.cpp
-  sprite.cpp
-  thread.cpp
-  Generating Code...
+﻿  BSP.cpp
+C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\BSP.cpp(79,30): warning C4018: '>': signed/unsigned mismatch
+C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\BSP.cpp(126,30): warning C4018: '>': signed/unsigned mismatch
+C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\BSP.cpp(173,30): warning C4018: '>': signed/unsigned mismatch
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   AtlasEngine.vcxproj -> C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\Debug\AtlasEngine.exe
