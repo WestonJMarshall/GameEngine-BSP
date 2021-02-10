@@ -62,7 +62,6 @@ struct BSP
 
 	std::vector<Instance*> instances;
 
-	BSP* root;
 	BSP* parent;
 	BSPChildren children;
 
@@ -70,18 +69,30 @@ struct BSP
 	float meanContentsValue; //determines where the BSP should split
 	glm::vec2 topLeft;
 	glm::vec2 bottomRight;
-
-
 };
 
 
 
 //Add instances that will be split into
 //BSP nodes when 'Generate_BSP' is called
-void Fill_BSP(BSP* bsp, Instance* inst, int instanceCount = 1);
+void Fill_BSP(BSP* bsp, std::vector<Instance*> instances);
+
+void Fill_BSP(BSP* bsp, Instance* instance);
 
 //Creates a BSP tree from this node downward
-BSP* Generate_BSP(BSP* bsp);
+void Generate_BSP(BSP* bsp);
+
+//Will appropriately size each BSP node if they
+//have more instances than needed to split 
+//(don't call directly unless you know what you are doing)
+void Smart_Distribute_Down_BSP(BSP* bsp);
+
+//Collects all of the instances in the BSP's children and
+//puts them in childInstances
+void Collect_BSP_Children(BSP* bsp, std::vector<Instance*>* childInstances);
+
+//Self explainatory
+void Generate_BSP_Children(BSP* bsp);
 
 //Deletes all of the data in this node and all nodes below
 void Clear_BSP_Node(BSP* bsp);
