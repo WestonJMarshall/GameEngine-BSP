@@ -155,8 +155,8 @@ void Init_BSP(BSP* bsp, int maxSubdivisions, int minToSubdivide)
 	bsp->split = false;
 	bsp->meanContentsValue = 0.0f;
 
-	//TEMP
-	bsp->instances.clear();
+	//Remove children and parents if there are any
+	Clear_BSP_Node(bsp);
 
 	bsp->boundingBox.back = 0.0f;
 	bsp->boundingBox.front = 0.0f;
@@ -166,8 +166,6 @@ void Init_BSP(BSP* bsp, int maxSubdivisions, int minToSubdivide)
 	bsp->boundingBox.bottom = 0.0f;
 
 	bsp->initialized = true;
-
-	//TODO Remove children and parents if there are any
 }
 
 void Place_Into_BSP(BSP* bsp, Instance* inst)
