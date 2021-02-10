@@ -65,10 +65,10 @@ void Generate_BSP(BSP* bsp)
 		childInstances->push_back(i);
 	}
 
+	//Remove all instance data in this node and below. Now all instances will be stored in 'childInstances' alone
 	Clear_BSP_Node(bsp);
 
-	//split this node into children as neccessary
-
+	//Put all the collected instances in the cleared node, then split this node into children as neccessary
 	for (auto& i : *childInstances)
 	{
 		bsp->instances.push_back(i);
@@ -80,31 +80,12 @@ void Generate_BSP(BSP* bsp)
 
 void Smart_Distribute_Down_BSP(BSP* bsp)
 {
-	//Average the values in this BSP, then split it if neccessary
+	//Average the position values of the instances
 	if (bsp->type == BSPSplitDirection::leftRight)
 	{
-		for (auto& i : bsp->instances) //Average the values of the instances
+		for (auto& i : bsp->instances) 
 		{
 			bsp->meanContentsValue += ((i->boundingBox.right + i->boundingBox.left) / 2.0f);
-		}
-		if (bsp->instances.size() > bsp->minToSubdivide) //Subdivide
-		{
-			Generate_BSP_Children(bsp);
-
-			for (auto& i : bsp->instances)
-			{
-				if (Bounding_Box_Collision(i->boundingBox, bsp->children.child1->boundingBox))
-				{
-					Fill_BSP(bsp->children.child1, i);
-				}
-				else
-				{
-					Fill_BSP(bsp->children.child2, i);
-				}
-			}
-
-			Smart_Distribute_Down_BSP(bsp->children.child1);
-			Smart_Distribute_Down_BSP(bsp->children.child2);
 		}
 	}
 	else if (bsp->type == BSPSplitDirection::frontBack)
@@ -113,25 +94,6 @@ void Smart_Distribute_Down_BSP(BSP* bsp)
 		{
 			bsp->meanContentsValue += ((i->boundingBox.front + i->boundingBox.back) / 2.0f);
 		}
-		if (bsp->instances.size() > bsp->minToSubdivide)
-		{
-			Generate_BSP_Children(bsp);
-
-			for (auto& i : bsp->instances)
-			{
-				if (Bounding_Box_Collision(i->boundingBox, bsp->children.child1->boundingBox))
-				{
-					Fill_BSP(bsp->children.child1, i);
-				}
-				else
-				{
-					Fill_BSP(bsp->children.child2, i);
-				}
-			}
-
-			Smart_Distribute_Down_BSP(bsp->children.child1);
-			Smart_Distribute_Down_BSP(bsp->children.child2);
-		}
 	}
 	else
 	{
@@ -139,25 +101,29 @@ void Smart_Distribute_Down_BSP(BSP* bsp)
 		{
 			bsp->meanContentsValue += ((i->boundingBox.top + i->boundingBox.bottom) / 2.0f);
 		}
-		if (bsp->instances.size() > bsp->minToSubdivide)
+	}
+
+	//Subdivide
+	if (bsp->instances.size() > bsp->minToSubdivide) 
+	{
+		Generate_BSP_Children(bsp);
+
+		for (auto& i : bsp->instances)
 		{
-			Generate_BSP_Children(bsp);
-
-			for (auto& i : bsp->instances)
+			if (Bounding_Box_Collision(i->boundingBox, bsp->children.child1->boundingBox))
 			{
-				if (Bounding_Box_Collision(i->boundingBox, bsp->children.child1->boundingBox))
-				{
-					Fill_BSP(bsp->children.child1, i);
-				}
-				else
-				{
-					Fill_BSP(bsp->children.child2, i);
-				}
+				Fill_BSP(bsp->children.child1, i);
 			}
-
-			Smart_Distribute_Down_BSP(bsp->children.child1);
-			Smart_Distribute_Down_BSP(bsp->children.child2);
+			else
+			{
+				Fill_BSP(bsp->children.child2, i);
+			}
 		}
+
+		bsp->instances.clear();
+
+		Smart_Distribute_Down_BSP(bsp->children.child1);
+		Smart_Distribute_Down_BSP(bsp->children.child2);
 	}
 }
 
@@ -208,10 +174,25 @@ void Place_Into_BSP(BSP* bsp, Instance* inst)
 {
 	if (!bsp->initialized) return;
 
-	//TODO If this is the head node and the instance is outside of its bounds, we have to regenerate everything
+	//If this is the head node and the instance is outside of its bounds, we have to regenerate everything
+	if (bsp->subdivisionLevel == 0)
+	{
+		bool regenerate = false;
+		if (inst->boundingBox.left < bsp->boundingBox.left) { regenerate = true; bsp->boundingBox.left = inst->boundingBox.left + std::numeric_limits<float>::epsilon(); }
+		if (inst->boundingBox.right > bsp->boundingBox.right) { regenerate = true; bsp->boundingBox.right = inst->boundingBox.right + std::numeric_limits<float>::epsilon(); }
+		if (inst->boundingBox.bottom < bsp->boundingBox.bottom) { regenerate = true; bsp->boundingBox.bottom = inst->boundingBox.bottom + std::numeric_limits<float>::epsilon(); }
+		if (inst->boundingBox.top > bsp->boundingBox.top) { regenerate = true; bsp->boundingBox.top = inst->boundingBox.top + std::numeric_limits<float>::epsilon(); }
+		if (inst->boundingBox.back < bsp->boundingBox.back) { regenerate = true; bsp->boundingBox.back = inst->boundingBox.back + std::numeric_limits<float>::epsilon(); }
+		if (inst->boundingBox.front > bsp->boundingBox.front) { regenerate = true; bsp->boundingBox.front = inst->boundingBox.front + std::numeric_limits<float>::epsilon(); }
 
+		if (regenerate)
+		{
+			Generate_BSP(bsp);
+			return;
+		}
+	}
 
-	//TODO if there are child nodes we will put this instance in one (or both???) of them (call pib and quit out)
+	//if there are child nodes we will put this instance in one (or both???) of them (call pib and quit out)
 	if (bsp->children.child1 != nullptr)
 	{
 		if (Bounding_Box_Collision(inst->boundingBox, bsp->children.child1->boundingBox))
@@ -224,8 +205,7 @@ void Place_Into_BSP(BSP* bsp, Instance* inst)
 		}
 		return;
 	}
-
-	//TODO else If the current node does not have children, add the instance, increment the meanContentsValue, and check if a split is neccessary
+	//else If the current node does not have children, add the instance, increment the meanContentsValue, and check if a split is neccessary
 	else
 	{
 		bsp->instances.push_back(inst);
@@ -234,161 +214,88 @@ void Place_Into_BSP(BSP* bsp, Instance* inst)
 		if (bsp->type == BSPSplitDirection::leftRight)
 		{
 			bsp->meanContentsValue += ((inst->boundingBox.right + inst->boundingBox.left) / 2.0f);
-
-			//Split BSP if neccessary
-			if (bsp->instances.size() > bsp->minToSubdivide)
-			{
-				Generate_BSP_Children(bsp);
-
-				//Place instances into newly created child nodes
-				for (auto& i : bsp->instances)
-				{
-					Place_Into_BSP(bsp, i);
-				}
-			}
 		}
 		else if (bsp->type == BSPSplitDirection::frontBack)
 		{
 			bsp->meanContentsValue += ((inst->boundingBox.front + inst->boundingBox.back) / 2.0f);
-
-			//Split BSP if neccessary
-			if (bsp->instances.size() > bsp->minToSubdivide)
-			{
-				Generate_BSP_Children(bsp);
-
-				//Place instances into newly created child nodes
-				for (auto& i : bsp->instances)
-				{
-					Place_Into_BSP(bsp, i);
-				}
-			}
 		}
 		else //topBottom
 		{
 			bsp->meanContentsValue += ((inst->boundingBox.top + inst->boundingBox.bottom) / 2.0f);
+		}
 
-			//Split BSP if neccessary
-			if (bsp->instances.size() > bsp->minToSubdivide)
+		//Split BSP if neccessary
+		if (bsp->instances.size() > bsp->minToSubdivide)
+		{
+			Generate_BSP_Children(bsp);
+
+			//Place instances into newly created child nodes
+			for (auto& i : bsp->instances)
 			{
-				Generate_BSP_Children(bsp);
-
-				//Place instances into newly created child nodes
-				for (auto& i : bsp->instances)
-				{
-					Place_Into_BSP(bsp, i);
-				}
+				Place_Into_BSP(bsp, i);
 			}
+
+			//Clear this nodes instances
+			bsp->instances.clear();
 		}
 	}
 }
 
-void Generate_BSP_Children(BSP* bsp)
+void Generate_BSP_Children(BSP* bsp) //Add new children to a node
 {
+	float splitLoc = bsp->meanContentsValue / bsp->instances.size();
+
+	BSP child1{};
+	Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
+	child1.parent = bsp;
+	child1.subdivisionLevel = bsp->subdivisionLevel + 1;
+
+	child1.boundingBox.left = bsp->boundingBox.left;
+	child1.boundingBox.right = bsp->boundingBox.right;
+	child1.boundingBox.front = bsp->boundingBox.front;
+	child1.boundingBox.back = bsp->boundingBox.back;
+	child1.boundingBox.top = bsp->boundingBox.top;
+	child1.boundingBox.bottom = bsp->boundingBox.bottom;
+
+	BSP child2{};
+	Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
+	child2.parent = bsp;
+	child2.subdivisionLevel = bsp->subdivisionLevel + 1;
+
+	child2.boundingBox.left = bsp->boundingBox.left;
+	child2.boundingBox.right = bsp->boundingBox.right;
+	child2.boundingBox.front = bsp->boundingBox.front;
+	child2.boundingBox.back = bsp->boundingBox.back;
+	child2.boundingBox.top = bsp->boundingBox.top;
+	child2.boundingBox.bottom = bsp->boundingBox.bottom;
+
 	if (bsp->type == BSPSplitDirection::leftRight)
 	{
-		float splitLoc = bsp->meanContentsValue / bsp->instances.size();
-
-		BSP child1{};
-		Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
-
 		child1.type = BSPSplitDirection::frontBack;
-		child1.parent = bsp;
-
-		child1.boundingBox.left = bsp->boundingBox.left;
 		child1.boundingBox.right = splitLoc;
-		child1.boundingBox.front = bsp->boundingBox.front;
-		child1.boundingBox.back = bsp->boundingBox.back;
-		child1.boundingBox.top = bsp->boundingBox.top;
-		child1.boundingBox.bottom = bsp->boundingBox.bottom;
-
-		bsp->children.child1 = &child1;
-
-		//2
-		BSP child2{};
-		Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
 		child2.type = BSPSplitDirection::frontBack;
-		child2.parent = bsp;
-
 		child2.boundingBox.left = splitLoc;
-		child2.boundingBox.right = bsp->boundingBox.right;
-		child2.boundingBox.front = bsp->boundingBox.front;
-		child2.boundingBox.back = bsp->boundingBox.back;
-		child2.boundingBox.top = bsp->boundingBox.top;
-		child2.boundingBox.bottom = bsp->boundingBox.bottom;
-
-		bsp->children.child2 = &child2;
 	}
 	else if (bsp->type == BSPSplitDirection::frontBack)
 	{
-		float splitLoc = bsp->meanContentsValue / bsp->instances.size();
-
-		BSP child1{};
-		Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
-
 		child1.type = BSPSplitDirection::topBottom;
-		child1.parent = bsp;
-
-		child1.boundingBox.left = bsp->boundingBox.left;
-		child1.boundingBox.right = bsp->boundingBox.right;
 		child1.boundingBox.front = splitLoc;
-		child1.boundingBox.back = bsp->boundingBox.back;
-		child1.boundingBox.top = bsp->boundingBox.top;
-		child1.boundingBox.bottom = bsp->boundingBox.bottom;
-
-		bsp->children.child1 = &child1;
-
-		//2
-		BSP child2{};
-		Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
 		child2.type = BSPSplitDirection::topBottom;
-		child2.parent = bsp;
-
-		child2.boundingBox.left = bsp->boundingBox.left;
-		child2.boundingBox.right = bsp->boundingBox.right;
-		child2.boundingBox.front = bsp->boundingBox.front;
 		child2.boundingBox.back = splitLoc;
-		child2.boundingBox.top = bsp->boundingBox.top;
-		child2.boundingBox.bottom = bsp->boundingBox.bottom;
-
-		bsp->children.child2 = &child2;
 	}
 	else
 	{
-		float splitLoc = bsp->meanContentsValue / bsp->instances.size();
-
-		BSP child1{};
-		Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
-
 		child1.type = BSPSplitDirection::leftRight;
-		child1.parent = bsp;
-
-		child1.boundingBox.left = bsp->boundingBox.left;
-		child1.boundingBox.right = bsp->boundingBox.right;
-		child1.boundingBox.front = bsp->boundingBox.front;
-		child1.boundingBox.back = bsp->boundingBox.back;
 		child1.boundingBox.top = splitLoc;
-		child1.boundingBox.bottom = bsp->boundingBox.bottom;
-
-		bsp->children.child1 = &child1;
-
-		//2
-		BSP child2{};
-		Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
 		child2.type = BSPSplitDirection::leftRight;
-		child2.parent = bsp;
-
-		child2.boundingBox.left = bsp->boundingBox.left;
-		child2.boundingBox.right = bsp->boundingBox.right;
-		child2.boundingBox.front = bsp->boundingBox.front;
-		child2.boundingBox.back = bsp->boundingBox.back;
-		child2.boundingBox.top = bsp->boundingBox.top;
 		child2.boundingBox.bottom = splitLoc;
-
-		bsp->children.child2 = &child2;
 	}
+
+	bsp->children.child1 = &child1;
+	bsp->children.child2 = &child2;
 }
 
 void Place_Into_BSP2D(BSP* bsp, Instance* instance) {
@@ -514,8 +421,6 @@ void Clear_BSP_Node(BSP* bsp)
 {
 	if (!bsp->initialized) return;
 
-	//Remove all instances from this node downwards, then delete all of this node's children
-
 	//Find children
 	if (bsp->children.child1 != nullptr)
 	{
@@ -529,6 +434,7 @@ void Clear_BSP_Node(BSP* bsp)
 		bsp->children.child1 = nullptr;
 		bsp->children.child2 = nullptr;
 	}
+	//Remove instances in node
 	bsp->instances.clear();
 }
 

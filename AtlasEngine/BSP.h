@@ -43,8 +43,6 @@ enum class BSPSplitDirection
 
 struct BSP
 {
-
-
 	struct BSPChildren
 	{
 		BSP* child1;
@@ -55,7 +53,7 @@ struct BSP
 
 	BSPSplitDirection type;
 
-	int subdivisionLevel;
+	unsigned int subdivisionLevel;
 
 	unsigned int maxSubdivisions;
 	unsigned int minToSubdivide;
