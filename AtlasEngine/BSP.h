@@ -27,13 +27,6 @@ bool Bounding_Box_Collision2D(BoundingBox& b1, BoundingBox& b2)
 	return true;
 }
 
-enum BSPSplitDirection
-{
-	leftRight,
-	frontBack,
-	topBottom
-};
-
 //for 2d bsp checking
 //enum BSPSplitDirection2D
 //{
@@ -41,8 +34,17 @@ enum BSPSplitDirection
 	//topBottom
 //};
 
+enum class BSPSplitDirection
+{
+	leftRight,
+	frontBack,
+	topBottom
+};
+
 struct BSP
 {
+
+
 	struct BSPChildren
 	{
 		BSP* child1;
@@ -55,8 +57,8 @@ struct BSP
 
 	int subdivisionLevel;
 
-	int maxSubdivisions;
-	int minToSubdivide;
+	unsigned int maxSubdivisions;
+	unsigned int minToSubdivide;
 
 	bool split;
 

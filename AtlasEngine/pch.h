@@ -31,6 +31,7 @@ struct BoundingBox
 	float front;
 	float back;
 };
+
 #include "mempack.h"
 #include "graphics.h"
 #include "sprite.h"

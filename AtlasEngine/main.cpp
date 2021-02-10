@@ -17,7 +17,7 @@ int main()
     InitOpenGL();
 
     // seed random number generator
-    srand(time(NULL));
+    srand(static_cast<unsigned int>(time(NULL)));
 
     // initialize level
     Level_Init();

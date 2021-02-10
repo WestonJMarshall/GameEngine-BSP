@@ -57,7 +57,7 @@ void Generate_BSP(BSP* bsp)
 	if (!bsp->initialized) return;
 
 	//Take all other instances below this node and add it to this one, then delete all child nodes
-	std::vector<Instance*>* childInstances;
+	std::vector<Instance*>* childInstances = new std::vector<Instance*>();
 	Collect_BSP_Children(bsp, childInstances);
 
 	for (auto& i : bsp->instances)
@@ -74,12 +74,14 @@ void Generate_BSP(BSP* bsp)
 		bsp->instances.push_back(i);
 	}
 	Smart_Distribute_Down_BSP(bsp);
+
+	delete childInstances;
 }
 
 void Smart_Distribute_Down_BSP(BSP* bsp)
 {
 	//Average the values in this BSP, then split it if neccessary
-	if (bsp->type == leftRight)
+	if (bsp->type == BSPSplitDirection::leftRight)
 	{
 		for (auto& i : bsp->instances) //Average the values of the instances
 		{
@@ -105,7 +107,7 @@ void Smart_Distribute_Down_BSP(BSP* bsp)
 			Smart_Distribute_Down_BSP(bsp->children.child2);
 		}
 	}
-	else if (bsp->type == frontBack)
+	else if (bsp->type == BSPSplitDirection::frontBack)
 	{
 		for (auto& i : bsp->instances)
 		{
@@ -179,7 +181,7 @@ void Collect_BSP_Children(BSP* bsp, std::vector<Instance*>* childInstances)
 
 void Init_BSP(BSP* bsp, int maxSubdivisions, int minToSubdivide)
 {
-	bsp->type = leftRight;
+	bsp->type = BSPSplitDirection::leftRight;
 
 	bsp->maxSubdivisions = maxSubdivisions;
 	bsp->minToSubdivide = minToSubdivide;
@@ -229,7 +231,7 @@ void Place_Into_BSP(BSP* bsp, Instance* inst)
 		bsp->instances.push_back(inst);
 
 		//The type of BSP determines the next action
-		if (bsp->type == leftRight)
+		if (bsp->type == BSPSplitDirection::leftRight)
 		{
 			bsp->meanContentsValue += ((inst->boundingBox.right + inst->boundingBox.left) / 2.0f);
 
@@ -245,7 +247,7 @@ void Place_Into_BSP(BSP* bsp, Instance* inst)
 				}
 			}
 		}
-		else if (bsp->type == frontBack)
+		else if (bsp->type == BSPSplitDirection::frontBack)
 		{
 			bsp->meanContentsValue += ((inst->boundingBox.front + inst->boundingBox.back) / 2.0f);
 
@@ -282,14 +284,14 @@ void Place_Into_BSP(BSP* bsp, Instance* inst)
 
 void Generate_BSP_Children(BSP* bsp)
 {
-	if (bsp->type == leftRight)
+	if (bsp->type == BSPSplitDirection::leftRight)
 	{
 		float splitLoc = bsp->meanContentsValue / bsp->instances.size();
 
 		BSP child1{};
 		Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-		child1.type = frontBack;
+		child1.type = BSPSplitDirection::frontBack;
 		child1.parent = bsp;
 
 		child1.boundingBox.left = bsp->boundingBox.left;
@@ -305,7 +307,7 @@ void Generate_BSP_Children(BSP* bsp)
 		BSP child2{};
 		Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-		child2.type = frontBack;
+		child2.type = BSPSplitDirection::frontBack;
 		child2.parent = bsp;
 
 		child2.boundingBox.left = splitLoc;
@@ -317,14 +319,14 @@ void Generate_BSP_Children(BSP* bsp)
 
 		bsp->children.child2 = &child2;
 	}
-	else if (bsp->type == frontBack)
+	else if (bsp->type == BSPSplitDirection::frontBack)
 	{
 		float splitLoc = bsp->meanContentsValue / bsp->instances.size();
 
 		BSP child1{};
 		Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-		child1.type = topBottom;
+		child1.type = BSPSplitDirection::topBottom;
 		child1.parent = bsp;
 
 		child1.boundingBox.left = bsp->boundingBox.left;
@@ -340,7 +342,7 @@ void Generate_BSP_Children(BSP* bsp)
 		BSP child2{};
 		Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-		child2.type = topBottom;
+		child2.type = BSPSplitDirection::topBottom;
 		child2.parent = bsp;
 
 		child2.boundingBox.left = bsp->boundingBox.left;
@@ -359,7 +361,7 @@ void Generate_BSP_Children(BSP* bsp)
 		BSP child1{};
 		Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-		child1.type = leftRight;
+		child1.type = BSPSplitDirection::leftRight;
 		child1.parent = bsp;
 
 		child1.boundingBox.left = bsp->boundingBox.left;
@@ -375,7 +377,7 @@ void Generate_BSP_Children(BSP* bsp)
 		BSP child2{};
 		Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-		child2.type = leftRight;
+		child2.type = BSPSplitDirection::leftRight;
 		child2.parent = bsp;
 
 		child2.boundingBox.left = bsp->boundingBox.left;
@@ -409,7 +411,7 @@ void Place_Into_BSP2D(BSP* bsp, Instance* instance) {
 		bsp->instances.push_back(instance);
 
 		//The type of BSP determines the next action
-		if (bsp->type == leftRight)
+		if (bsp->type == BSPSplitDirection::leftRight)
 		{
 			bsp->meanContentsValue += ((instance->boundingBox.right + instance->boundingBox.left) / 2.0f);
 
@@ -422,7 +424,7 @@ void Place_Into_BSP2D(BSP* bsp, Instance* instance) {
 				Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
 
 				//if type is leftright, change type to topbottom and make bounding box, and do not check for front and back
-				child1.type = topBottom;
+				child1.type = BSPSplitDirection::topBottom;
 				child1.parent = bsp;
 
 				child1.boundingBox.left = bsp->boundingBox.left;
@@ -438,7 +440,7 @@ void Place_Into_BSP2D(BSP* bsp, Instance* instance) {
 				BSP child2{};
 				Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-				child2.type = topBottom;
+				child2.type = BSPSplitDirection::topBottom;
 				child2.parent = bsp;
 
 				child2.boundingBox.left = splitLoc;
@@ -470,7 +472,7 @@ void Place_Into_BSP2D(BSP* bsp, Instance* instance) {
 				BSP child1{};
 				Init_BSP(&child1, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-				child1.type = leftRight;
+				child1.type = BSPSplitDirection::leftRight;
 				child1.parent = bsp;
 
 				child1.boundingBox.left = bsp->boundingBox.left;
@@ -486,7 +488,7 @@ void Place_Into_BSP2D(BSP* bsp, Instance* instance) {
 				BSP child2{};
 				Init_BSP(&child2, bsp->maxSubdivisions, bsp->minToSubdivide);
 
-				child2.type = leftRight;
+				child2.type = BSPSplitDirection::leftRight;
 				child2.parent = bsp;
 
 				child2.boundingBox.left = bsp->boundingBox.left;
