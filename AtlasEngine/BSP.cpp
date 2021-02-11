@@ -92,16 +92,22 @@ void BSP_Generate(BSP* bsp)
 	}
 	BSP_Smart_Distribute_Down(bsp);
 
+	//cleanup
 	delete childInstances;
 }
 
 void BSP_Smart_Distribute_Down(BSP* bsp)
 {
+	//this section sets the mean contents value of the instance based on which 
+	//split direction the bsp uses
 	//Average the position values of the instances
 	if (bsp->type == BSPSplitDirection::leftRight)
 	{
 		for (auto& i : *bsp->instances) 
 		{
+			//gets the mean of the instance values by getting their center float value 
+			//of their bounding box split, in this instance the middle of the left and
+			//right bounding boxes
 			bsp->meanContentsValue += ((i->boundingBox.right + i->boundingBox.left) / 2.0f);
 		}
 	}
@@ -127,10 +133,14 @@ void BSP_Smart_Distribute_Down(BSP* bsp)
 
 		for (auto& i : *bsp->instances)
 		{
+			//if the bsp's child1 collides with the bounding box if the instance
+			//add the instance to the child bsp, and removed from parent bsp
 			if (Bounding_Box_Collision(i->boundingBox, bsp->children.child1->boundingBox))
 			{
 				BSP_Fill(bsp->children.child1, i);
 			}
+			//if the instance does not collide with the child1 bsp, assume the
+			//instance collides with the child2 bsp
 			else
 			{
 				BSP_Fill(bsp->children.child2, i);
@@ -146,14 +156,21 @@ void BSP_Smart_Distribute_Down(BSP* bsp)
 
 void BSP_Collect_Children(BSP* bsp, std::vector<Instance*>* childInstances)
 {
+	//This function essentially gets all of the instances in the BSP
+	//by loopig recursively
 	if (bsp->children.child1 != nullptr)
 	{
+		//while child1 exits, loop through the child and get all the instances
+		//and add them to the childInstances vector
 		for (auto& i : *bsp->children.child1->instances)
 		{
 			childInstances->push_back(i);
 		}
+		//recursively call the function to traves the tree of child bsps,
+//and collect their children, function continues past recursive call
 		BSP_Collect_Children(bsp->children.child1, childInstances);
 
+		//do the same for child2 as above
 		for (auto& i : *bsp->children.child2->instances)
 		{
 			childInstances->push_back(i);
@@ -215,6 +232,7 @@ void BSP_Place_Into(BSP* bsp, Instance* inst)
 	//if there are child nodes we will put this instance in one (or both???) of them (call pib and quit out)
 	if (bsp->children.child1 != nullptr)
 	{
+		//if an instance collides with the child bsp, place the instance inside of the child BSP
 		if (Bounding_Box_Collision(inst->boundingBox, bsp->children.child1->boundingBox))
 		{
 			BSP_Place_Into(bsp->children.child1, inst);
@@ -230,7 +248,8 @@ void BSP_Place_Into(BSP* bsp, Instance* inst)
 	{
 		bsp->instances->push_back(inst);
 
-		//The type of BSP determines the next action
+		//The type of BSP split direction determines the next action
+		//and will split the bounding box based on the direction
 		if (bsp->type == BSPSplitDirection::leftRight)
 		{
 			bsp->meanContentsValue += ((inst->boundingBox.right + inst->boundingBox.left) / 2.0f);
@@ -289,6 +308,9 @@ void BSP_Generate_Children(BSP* bsp) //Add new children to a node
 	child2->boundingBox.top = bsp->boundingBox.top;
 	child2->boundingBox.bottom = bsp->boundingBox.bottom;
 
+	//depending on the split direction, set the children bsp's values 
+	//to the split location and iterate to the next enum value of split
+	//direction, the order is LeftRight->FrontBack->TopBottom
 	if (bsp->type == BSPSplitDirection::leftRight)
 	{
 		child1->type = BSPSplitDirection::frontBack;
