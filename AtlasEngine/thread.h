@@ -5,6 +5,7 @@ enum ThreadTypes
 {
 	TH_PLAYER,
 	TH_COIN,
+	TH_BSP,
 	TH_NUM_TYPES
 };
 

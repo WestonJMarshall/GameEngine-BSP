@@ -13,8 +13,7 @@
 //Temp?
 #include <vector>
 
-
-// fowrad declaration
+// forward declaration
 struct Mempack;
 struct Sprite;
 struct Instance;
@@ -22,16 +21,11 @@ struct Thread;
 struct Player;
 struct Item;
 struct Pool;
-struct BoundingBox
-{
-	float left;
-	float right;
-	float top;
-	float bottom;
-	float front;
-	float back;
-};
+struct BoundingBox;
+struct BSP;
 
+#include "Collider.h"
+#include "BSP.h"
 #include "mempack.h"
 #include "graphics.h"
 #include "sprite.h"

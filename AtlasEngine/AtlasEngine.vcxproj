@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="BSP.cpp" />
     <ClCompile Include="coin.cpp" />
+    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="graphics.cpp" />
@@ -153,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="BSP.h" />
     <ClInclude Include="coin.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="level.h" />

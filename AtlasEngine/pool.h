@@ -14,6 +14,7 @@ enum PoolTypes
 {
 	PL_THREAD,
 	PL_INSTANCE,
+	PL_BSP,
 	PL_NUM_TYPES
 };
 
