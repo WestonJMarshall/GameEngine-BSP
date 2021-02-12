@@ -34,7 +34,12 @@ void Level_Init()
     in->sprite = global.sprite[SP_PLAYER];
 
     //Create bounding box for player
-
+    in->boundingBox.left = in->posX;
+    in->boundingBox.right = in->posX + in->scaleX;
+    in->boundingBox.top = in->posY + in->scaleY;
+    in->boundingBox.bottom = in->posY;
+    in->boundingBox.front = 1;
+    in->boundingBox.back = -1;
 
     //Add BSP
     BSP* bsp = (BSP*)Pool_NewItem(&global.pool[PL_BSP]);
@@ -80,10 +85,18 @@ void Level_ResetCoins()
         in->scaleY = 0.002f;
         in->sprite = global.sprite[SP_COIN];
 
+        //Create bounding box for coin
+        in->boundingBox.left = in->posX;
+        in->boundingBox.right = in->posX + in->scaleX;
+        in->boundingBox.top = in->posY + in->scaleY;
+        in->boundingBox.bottom = in->posY;
+        in->boundingBox.front = 1;
+        in->boundingBox.back = -1;
+
         BSP_Fill(bsp, in);
     }
 
-    BSP_Generate(bsp);
+    BSP_Generate_2D(bsp);
 }
 
 void Level_Update()

@@ -1,5 +1,7 @@
 ﻿  pch.cpp
   BSP.cpp
+C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\BSP.cpp(140,9): warning C4477: 'printf' : format string '%ld' requires an argument of type 'long', but variadic argument 1 has type 'float *'
+C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\BSP.cpp(362,9): warning C4477: 'printf' : format string '%ld' requires an argument of type 'long', but variadic argument 1 has type 'float *'
   coin.cpp
   Collider.cpp
   collision.cpp
@@ -15,5 +17,4 @@
   sprite.cpp
   thread.cpp
   Generating Code...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   AtlasEngine.vcxproj -> C:\Users\Weston Marshall\Desktop\Vulkan\BSP\GameEngine-BSP\AtlasEngine\Debug\AtlasEngine.exe

@@ -13,5 +13,5 @@ struct BoundingBox
 
 bool Bounding_Box_Collision(BoundingBox& b1, BoundingBox& b2);
 
-bool Bounding_Box_Collision2D(BoundingBox& b1, BoundingBox& b2);
+bool Bounding_Box_Collision_2D(BoundingBox& b1, BoundingBox& b2);
 
